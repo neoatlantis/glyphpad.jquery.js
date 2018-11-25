@@ -1,0 +1,32 @@
+<html>
+<head>
+    <title>Ingress Glyph Input Widget - a Demo</title>
+    <meta charset="utf-8" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="glyphing.jquery.js"></script>
+    <script>
+        $(function(){
+            $("#glyphing").glyphinput();
+        });
+    </script>
+    <style>
+        .glyphpad{background: #000000}
+        .glyphpad-circle:hover{
+            fill: #FFCC00;
+        }
+        .glyphpad-trace{
+            stroke-dasharray: 5,5;
+            stroke-width: 5px;
+            stroke: red;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+
+<svg id="glyphing" class="glyphpad" version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="300px" height="300px" viewBox="0 0 300 300">
+
+</svg>
+
+</body>
+</html>
