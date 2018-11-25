@@ -16,12 +16,11 @@ function svgEl(tagName, attributes) {
 
 function initSVG(svg){
     var height = VIEWPORT_HEIGHT, width = VIEWPORT_WIDTH;
-    var padSize = height * 0.45, circleSize = height * 0.025;
+    var padSize = height * 0.45, circleSize = height * 0.035;
 
     function fictionToRealCoord(r, theta){
         var x = r * padSize * Math.cos(theta) + width / 2,
             y = height / 2 - r * padSize * Math.sin(theta);
-        console.log(x, y);
         return [x, y];
     }
 
@@ -34,6 +33,7 @@ function initSVG(svg){
             "stroke-width": "1px",
             "class": "glyphpad-circle",
             "data-name": label,
+            "id": "glyphpad-circle-" + label,
         });
 
         svg.appendChild(circle);
@@ -86,7 +86,31 @@ function addTracingEvents(svg){
         var stroke = [a, b], s;
         stroke.sort();
         s = stroke.join("");
-        if(foundStrokes.indexOf(s) < 0) foundStrokes.push(s);
+        if(foundStrokes.indexOf(s) < 0){
+            foundStrokes.push(s);
+            drawStroke(a, b);
+        }
+    }
+
+    function drawStroke(a, b){
+        var circleA = svg.getElementById("glyphpad-circle-" + a),
+            circleB = svg.getElementById("glyphpad-circle-" + b);
+        svg.appendChild(svgEl("line", {
+            x1: circleA.getAttribute("cx"),
+            y1: circleA.getAttribute("cy"),
+            x2: circleB.getAttribute("cx"),
+            y2: circleB.getAttribute("cy"),
+            "class": "glyphpad-stroke",
+        }));
+    }
+
+    function removeElementsByClassName(className){
+        for(var j=0; j<5; j++){
+            var els = svg.getElementsByClassName(className);
+            for(var i=0; i<els.length; i++){
+                svg.removeChild(els[i]);
+            }
+        }
     }
 
     function startTracing(){
@@ -104,10 +128,8 @@ function addTracingEvents(svg){
         currentPolyline = null;
         lastHoverCircle = null;
         foundStrokes = [];
-        var traces = svg.getElementsByClassName("glyphpad-trace");
-        for(var i=0; i<traces.length; i++){
-            svg.removeChild(traces[i]);
-        }
+        removeElementsByClassName("glyphpad-trace");
+        removeElementsByClassName("glyphpad-stroke");
     }
 
     function traceMovement(e){
@@ -139,13 +161,40 @@ function addTracingEvents(svg){
 
 //----------------------------------------------------------------------------
 // Evaluate strokes
-const glyphtionary = {
+var glyphtionary = {
+    "1A-AX-XC-C4-45": "abandon",
+    "3C-CX-XD": "adapt",
+    "2B-4B": "advance",
+    "1A-AX-XD-D6-61": "after",
+    "4B-BC-CX-XA-AD": "repeat",
+    "12-23-34-45-56-61": "all",
+    "AB-AD-DX": "answer",
+    "4B-B2-2A-A6": "war",
+    "32-2A-A1-1D": "avoid",
+    "2X-XD-D6": "barrier",
+    "3B-BX-XC-C4-43": "before",
     "AB-AX-BX": "body",
+};
+var compiledGlyphtionary = {};
+for(var seq in glyphtionary){
+    var seq1 = seq.split("-");
+    var seq2 = [];
+    for(var i=0; i<seq1.length; i++){
+        var seq3 = [seq1[i][0], seq1[i][1]];
+        seq3.sort();
+        seq2.push(seq3.join(""));
+    }
+    seq2.sort();
+    compiledGlyphtionary[seq2.join("-")] = glyphtionary[seq];
 }
+console.log(compiledGlyphtionary);
+
+
 function evaluateStrokes(strokes){
     strokes.sort();
     var index = strokes.join("-");
-    if(glyphtionary[index]) return glyphtionary[index];
+    console.log("Evaluate:", index);
+    if(compiledGlyphtionary[index]) return compiledGlyphtionary[index];
     return null;
 };
 
