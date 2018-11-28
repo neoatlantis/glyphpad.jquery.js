@@ -166,7 +166,7 @@ $(window).on("touchmove", function(e){
 function initSVG(svg){
     var height = svg.viewBox.baseVal.height,
         width = svg.viewBox.baseVal.width;
-    var padSize = height * 0.4, circleSize = height * 0.035;
+    var padSize = height * 0.45, circleSize = height * 0.025;
 
     svg.setAttribute("width", width);
     svg.setAttribute("height", height);
@@ -182,8 +182,6 @@ function initSVG(svg){
         var x = coord[0], y = coord[1];
         var circle = svgEl("circle", {
             "cx": x, "cy": y, "r": circleSize,
-            "stroke": "white",
-            "stroke-width": "1px",
             "class": "glyphpad-circle",
             "data-name": label,
             "id": "glyphpad-circle-" + label,
@@ -267,7 +265,7 @@ function addTracingEvents(svg){
         }
     }
 
-    function startTracing(){
+    function startTracing(e){
         tracing = true;
         blockScreenScroll();
         // snapshot of circles position, for tracking mouse & touch movement
@@ -282,6 +280,7 @@ function addTracingEvents(svg){
                     parseFloat(circles[i].getAttribute("r")),
                 ];
         }
+        traceMovement(e);
     }
 
     function endTracing(){
@@ -309,7 +308,7 @@ function addTracingEvents(svg){
                 Math.pow(eventData.clientX - circlesPosition[label][0], 2) +
                 Math.pow(eventData.clientY - circlesPosition[label][1], 2)
                 <=
-                Math.pow(circlesPosition[label][2] * 1.5, 2)
+                Math.pow(circlesPosition[label][2] * 2, 2)
             ){
                 onGlyphCircleHovered(null, label);
                 break;
