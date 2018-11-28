@@ -1,12 +1,13 @@
 Glyphpad for Ingress-glyph Inputs
 =================================
 
-Glyphpad is a jQuery plugin, which turns a SVG element in a web page into a
-input pad allowing user to draw glyphs on it.
+Glyphpad is a jQuery plugin, which turns a SVG element on an web page into an
+area allowing user to draw glyphs on it.
 
-The glyphing language is part of the augmented-reality game Ingress, where each
-glyph represents at least one English word, and glyphs up to 5 in sequence may
-be entered when hacking a portal in game, thus increasing acquirable items. 
+The glyphing language is part of the augmented-reality game
+[Ingress](www.ingress.com), where each glyph represents at least one English
+word, and glyphs up to 5 in sequence may be entered when hacking a portal in
+game, thus increasing acquirable items.
 [[1]](https://ingress.fandom.com/wiki/Glyph_Hacking)
 
 This jQuery plugin allows you to incorporate Glyphing into any website.  It
@@ -17,6 +18,8 @@ with that glyph will be fired, allowing you with further processing(shall we
 seed a password generator?)
 
 ### Usage
+
+Refer to `index.html` for this example. Open browser console for events.
 
 1. this plugin must be included after `jquery` and `jquery.mobile`
 2. create a svg element, e.g.
