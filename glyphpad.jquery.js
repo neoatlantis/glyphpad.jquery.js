@@ -1,8 +1,6 @@
 (function($){
 //////////////////////////////////////////////////////////////////////////////
 
-const VIEWPORT_WIDTH = 300, VIEWPORT_HEIGHT = 300;
-
 function svgEl(tagName, attributes) {
     var el = document.createElementNS("http://www.w3.org/2000/svg", tagName);
     if(attributes){
@@ -11,12 +9,33 @@ function svgEl(tagName, attributes) {
     return el;
 }
 
+function addClass(target, className){
+    var clsstr = target.getAttribute("class") || "";
+    if(clsstr.indexOf(className) < 0){
+        target.setAttribute("class", clsstr + " " + className);
+    }
+}
+
+//----------------------------------------------------------------------------
+// Screen scroll blocker
+
+var blockingScreenScroll = false;
+
+function blockScreenScroll(){ blockingScreenScroll = true; }
+function unblockScreenScroll(){ blockingScreenScroll = false; }
+
+$(window).on("touchmove", function(e){
+    if(blockingScreenScroll) e.preventDefault();
+});
+
+
 //----------------------------------------------------------------------------
 // Glyphpad initializer
 
 function initSVG(svg){
-    var height = VIEWPORT_HEIGHT, width = VIEWPORT_WIDTH;
-    var padSize = height * 0.45, circleSize = height * 0.035;
+    var height = svg.viewBox.baseVal.height,
+        width = svg.viewBox.baseVal.width;
+    var padSize = height * 0.4, circleSize = height * 0.035;
 
     function fictionToRealCoord(r, theta){
         var x = r * padSize * Math.cos(theta) + width / 2,
@@ -56,7 +75,8 @@ function initSVG(svg){
 }
 
 function addMagicToCircle(circle){
-    $(circle).on("mouseover mouseleave mouseenter", function(){
+    return;
+    $(circle).on("vmouseover vmousemove mouseleave mouseenter", function(){
         $(this).trigger("mouseover_glyph", $(this).attr("data-name"));
     });
 }
@@ -71,6 +91,7 @@ function addTracingEvents(svg){
     var tracing = false;
     var currentTrace = "", currentPolyline = null;
     var lastHoverCircle = null, foundStrokes = [];
+    var circlesPosition = {};
 
     function pushPolyline(x, y){
         if(!currentPolyline){// || currentTrace.length > 100 * 4){
@@ -115,6 +136,19 @@ function addTracingEvents(svg){
 
     function startTracing(){
         tracing = true;
+        blockScreenScroll();
+        // snapshot of circles position, for tracking mouse & touch movement
+        // and calculating if a circle is entered(hover event doesn't work
+        // reliably in touchscreen!)
+        var circles = svg.getElementsByTagName("circle");
+        for(var i=0; i<circles.length; i++){
+            circlesPosition[circles[i].getAttribute("data-name")] =
+                [
+                    parseFloat(circles[i].getAttribute("cx")),
+                    parseFloat(circles[i].getAttribute("cy")),
+                    parseFloat(circles[i].getAttribute("r")),
+                ];
+        }
     }
 
     function endTracing(){
@@ -130,16 +164,31 @@ function addTracingEvents(svg){
         foundStrokes = [];
         removeElementsByClassName("glyphpad-trace");
         removeElementsByClassName("glyphpad-stroke");
+        resetCircles();
+        unblockScreenScroll();
     }
 
-    function traceMovement(e){
+    function traceMovement(eventData){
         if(!tracing) return;
-        var eventData = e.originalEvent;
         pushPolyline(eventData.clientX, eventData.clientY);
+        // find if a circle is entered
+        for(var label in circlesPosition){
+            if(
+                Math.pow(eventData.clientX - circlesPosition[label][0], 2) +
+                Math.pow(eventData.clientY - circlesPosition[label][1], 2)
+                <=
+                Math.pow(circlesPosition[label][2] * 1.5, 2)
+            ){
+                onGlyphCircleHovered(null, label);
+                break;
+            }
+        }
     }
 
     function onGlyphCircleHovered(e, name){
         if(!tracing) return;
+        var el = svg.getElementById("glyphpad-circle-" + name);
+        addClass(el, "glyphpad-circle-active");
         if(!lastHoverCircle){
             lastHoverCircle = name;
             return;
@@ -150,10 +199,17 @@ function addTracingEvents(svg){
         }
     }
 
+    function resetCircles(){
+        var circles = svg.getElementsByTagName("circle");
+        for(var i=0; i<circles.length; i++){
+            circles[i].setAttribute("class", "glyphpad-circle");
+        }
+    }
+
     $(svg)
-        .on("mousedown", startTracing)
-        .on("mouseup", endTracing)
-        .on("mousemove", traceMovement)
+        .on("vmousedown", startTracing)
+        .on("vmouseup", endTracing)
+        .on("vmousemove", traceMovement)
         .on("mouseover_glyph", onGlyphCircleHovered);
     ;
 
@@ -194,13 +250,16 @@ function evaluateStrokes(strokes){
     strokes.sort();
     var index = strokes.join("-");
     console.log("Evaluate:", index);
-    if(compiledGlyphtionary[index]) return compiledGlyphtionary[index];
+    if(compiledGlyphtionary[index]){
+        alert(compiledGlyphtionary[index]);
+        return compiledGlyphtionary[index];
+    }
     return null;
 };
 
 
 
-$.fn.glyphinput = function(){
+$.fn.glyphpad = function(){
     this.each(function(){
         initSVG(this);
         addTracingEvents(this);
