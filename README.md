@@ -5,7 +5,7 @@ Glyphpad is a jQuery plugin, which turns a SVG element on an web page into an
 area allowing user to draw glyphs on it.
 
 The glyphing language is part of the augmented-reality game
-[Ingress](www.ingress.com), where each glyph represents at least one English
+[Ingress](https://ingress.com), where each glyph represents at least one English
 word, and glyphs up to 5 in sequence may be entered when hacking a portal in
 game, thus increasing acquirable items.
 [[1]](https://ingress.fandom.com/wiki/Glyph_Hacking)
@@ -16,6 +16,8 @@ touchscreen, may draw unlimited glyphs on it. Glyphs drawn will be compared
 with a coded database and recognized. Upon successful recognization, an event
 with that glyph will be fired, allowing you with further processing(shall we
 seed a password generator?)
+
+__Disclaimer: This plugin is a private fan-project and has nothing to do with official Ingress or Niantic.__
 
 ### Usage
 
